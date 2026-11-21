@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Health Tracker - Person 1: Main Menu and Add Medication."""
 import sqlite3
+from datetime import date
 
 DB_FILE = "sesecare.db"
 
@@ -15,6 +16,8 @@ METRICS = {
           "tip": "Try a fixed bedtime and keep screens away before sleeping."},
 }
 
+MAX_VALUES = {"water": 20, "exercise": 1440, "sleep": 24}
+
 def show_menu():
     """Print the main menu."""
     print("\n=== HEALTH TRACKER ===")
@@ -23,10 +26,57 @@ def show_menu():
     print("3. View Summary & Alerts")
     print("4. Exit")
 
+def save_reading(metric_key, value, reading_date):
+    """Save one reading into the SQL database. (TEAMMATE: write this function.)
+
+    metric_key   -> text: "water", "exercise" or "sleep"
+    value        -> number (float), already checked by record_reading()
+    reading_date -> text in YYYY-MM-DD format, for example "2026-11-21"
+
+    Nothing needs to be returned.
+    """
+    # TODO: add the SQL code that saves the reading here
+    pass
+
+
 def record_reading():
-    """Option 1: record water intake, exercise minutes, weight or sleep hours."""
+    """Option 1: record water intake, exercise minutes or sleep hours."""
     print("\n--- Record Health Reading ---")
-    # TODO: add the code that records a reading here
+    print("What would you like to record?")
+    for number, info in METRICS.items():
+        print("{}. {}".format(number, info["name"]))
+    print("4. Back to Main Menu")
+
+    choice = input("Enter your choice (1-4): ").strip()
+    if choice == "4":
+        return
+    if choice not in METRICS:
+        print("Invalid choice. Please type a number from 1 to 4.")
+        return
+
+    info = METRICS[choice]
+    prompt = "Enter {} in {}: ".format(info["name"].lower(), info["unit"])
+    try:
+        value = float(input(prompt))
+    except ValueError:
+        print("Invalid input. Please type a number, for example 2.5.")
+        return
+
+    maximum = MAX_VALUES[info["key"]]
+    if not (0 < value <= maximum):
+        print("That value does not look right. Please enter a number "
+              "above 0 and up to {:g} {}.".format(maximum, info["unit"]))
+        return
+
+    reading_date = date.today().isoformat()
+    try:
+        save_reading(info["key"], value, reading_date)
+    except sqlite3.Error as error:
+        print("Could not save to the database: {}".format(error))
+        return
+
+    print("Saved! {}: {:g} {} recorded on {}.".format(
+        info["name"], value, info["unit"], reading_date))
 
 def manage_medications():
     """Option 2: add, view or remove medications."""
@@ -34,19 +84,19 @@ def manage_medications():
     print("1. Add Medication")
     print("2. View Medications")
     print("3. Remove Medication")
-    
+
     med_choice = input("Choose an option (1-3): ")
-    
+
     if med_choice == "1":
         med_name = input("Enter medication name: ")
         med_dose = input("Enter medication dose (e.g., 500mg, 1 tablet): ")
         med_time = input("Enter medication time (e.g., 08:00 AM): ")
-        
+
         with open("medications.txt", "a") as file:
             file.write("Name: {} | Dose: {} | Time: {}\n".format(med_name, med_dose, med_time))
-            
+
         print("Success! '{}' has been saved to medications.txt.".format(med_name))
-        
+
     elif med_choice == "2":
         print("View Medications feature coming soon...")
     elif med_choice == "3":
@@ -124,7 +174,7 @@ def main():
     while True:
         show_menu()
         choice = input("Enter your choice (1-4): ")
-        
+
         if choice == "1":
             record_reading()
         elif choice == "2":
