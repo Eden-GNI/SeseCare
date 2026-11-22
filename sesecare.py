@@ -3,8 +3,10 @@
 import sqlite3
 from datetime import date, datetime
 
-DB_FILE = "sesecare.db"
-MEDICATIONS_FILE = "medications.txt"
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_FILE = os.path.join(BASE_DIR, "sesecare.db")
+MEDICATIONS_FILE = os.path.join(BASE_DIR, "medications.txt")
 
 # Settings for the summary and alerts feature (option 3).
 # goal = recommended amount per record; the alert uses it.
@@ -50,7 +52,11 @@ def save_reading(metric_key, value, reading_date):
     finally:
         conn.close()
 
-
+def format_amount(value, unit):
+    """Return a value with its unit, e.g. '1.0 liters' or '30 minutes'."""
+    if unit == "liters":
+        return "{:.1f} liters".format(value)
+    return "{:g} {}".format(value, unit)
 
 def record_reading():
     """Option 1: record water intake, exercise minutes or sleep hours."""
@@ -88,8 +94,8 @@ def record_reading():
         print("Could not save to the database: {}".format(error))
         return
 
-    print("Saved! {}: {:g} {} recorded on {}.".format(
-        info["name"], value, info["unit"], reading_date))
+    print("Saved! {}: {} recorded on {}.".format(
+        info["name"], format_amount(value, info["unit"]), reading_date))
 
 def manage_medications():
     """Option 2: add, view or remove medications."""
@@ -184,23 +190,25 @@ def manage_medications():
 def get_recent_readings(metric_key, limit=7):
     """Return the newest readings for one metric as a list of (value, date)."""
     conn = sqlite3.connect(DB_FILE)
-    conn.execute("CREATE TABLE IF NOT EXISTS readings ("
-                 "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                 "metric TEXT NOT NULL, value REAL NOT NULL, date TEXT NOT NULL)")
-    rows = conn.execute("SELECT value, date FROM readings WHERE metric = ? "
-                        "ORDER BY date DESC, id DESC LIMIT ?",
-                        (metric_key, limit)).fetchall()
-    conn.close()
+    try:
+        conn.execute("CREATE TABLE IF NOT EXISTS readings ("
+                     "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                     "metric TEXT NOT NULL, value REAL NOT NULL, date TEXT NOT NULL)")
+        rows = conn.execute("SELECT value, date FROM readings WHERE metric = ? "
+                            "ORDER BY date DESC, id DESC LIMIT ?",
+                            (metric_key, limit)).fetchall()
+    finally:
+        conn.close()
     return rows
-
 
 def show_alert(info, readings, lowest):
     """Warn when more than half of the records are below the recommended goal."""
     below = [r for r in readings if r[0] < info["goal"]]
     if len(below) > len(readings) / 2:
-        print("\nALERT: {} of {} records were below the recommended {:g} {}".format(
-            len(below), len(readings), info["goal"], info["unit"]))
-        print("(lowest: {:g} {} on {}).".format(lowest[0], info["unit"], lowest[1]))
+        print("\nALERT: {} of {} records were below the recommended {}".format(
+            len(below), len(readings), format_amount(info["goal"], info["unit"])))
+        print("(lowest: {} on {}).".format(
+            format_amount(lowest[0], info["unit"]), lowest[1]))
         print(info["tip"])
     else:
         print("\nGood job! You are meeting your recommended amount most days.")
@@ -239,8 +247,8 @@ def view_summary():
 
     print("\n--- Summary for {} (last {} records) ---".format(info["name"], len(readings)))
     print("Average: {:.1f} {}".format(average, info["unit"]))
-    print("Highest: {:g} {}".format(highest[0], info["unit"]))
-    print("Lowest:  {:g} {}".format(lowest[0], info["unit"]))
+    print("Highest: {}".format(format_amount(highest[0], info["unit"])))
+    print("Lowest:  {}".format(format_amount(lowest[0], info["unit"])))
 
     show_alert(info, readings, lowest)
     input("\nPress Enter to return to the main menu...")
@@ -250,7 +258,7 @@ def main():
     """Main loop to display menu and handle user choices."""
     while True:
         show_menu()
-        choice = input("Enter your choice (1-4): ")
+        choice = input("Enter your choice (1-4): ").strip()
 
         if choice == "1":
             record_reading()
@@ -265,4 +273,7 @@ def main():
             print("Invalid input. Please enter a number between 1 and 4.")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        print("\nExiting SeseCare Health Tracker. Stay healthy!")
