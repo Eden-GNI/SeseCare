@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Health Tracker - Person 1: Main Menu and Add Medication."""
 import sqlite3
-from datetime import date
+from datetime import date, datetime
 
 DB_FILE = "sesecare.db"
+MEDICATIONS_FILE = "medications.txt"
 
 # Settings for the summary and alerts feature (option 3).
 # goal = recommended amount per record; the alert uses it.
@@ -80,29 +81,93 @@ def record_reading():
 
 def manage_medications():
     """Option 2: add, view or remove medications."""
-    print("\n--- Manage Medications ---")
-    print("1. Add Medication")
-    print("2. View Medications")
-    print("3. Remove Medication")
+    while True:
+        print("\n--- Manage Medications ---")
+        print("1. Add Medication")
+        print("2. View Medications")
+        print("3. Remove Medication")
+        print("4. Back to Main Menu")
 
-    med_choice = input("Choose an option (1-3): ")
+        med_choice = input("Choose an option (1-4): ").strip()
+        if med_choice == "4":
+            return
 
-    if med_choice == "1":
-        med_name = input("Enter medication name: ")
-        med_dose = input("Enter medication dose (e.g., 500mg, 1 tablet): ")
-        med_time = input("Enter medication time (e.g., 08:00 AM): ")
+        if med_choice == "1":
+            med_name = input("Enter medication name: ").strip()
+            med_dose = input("Enter medication dose (e.g., 500mg, 1 tablet): ").strip()
+            med_time = input("Enter medication time (e.g., 08:00 AM): ").strip()
 
-        with open("medications.txt", "a") as file:
-            file.write("Name: {} | Dose: {} | Time: {}\n".format(med_name, med_dose, med_time))
+            fields = (med_name, med_dose, med_time)
+            if any(not field for field in fields):
+                print("Medication name, dose, and time are required.")
+                continue
+            if any("|" in field for field in fields):
+                print("Medication details cannot contain '|'.")
+                continue
+            try:
+                datetime.strptime(med_time, "%I:%M %p")
+            except ValueError:
+                print("Invalid time. Use the format HH:MM AM/PM, e.g., 08:00 AM.")
+                continue
 
-        print("Success! '{}' has been saved to medications.txt.".format(med_name))
+            try:
+                with open(MEDICATIONS_FILE, "a", encoding="utf-8") as file:
+                    file.write("Name: {} | Dose: {} | Time: {}\n".format(
+                        med_name, med_dose, med_time))
+            except OSError as error:
+                print("Could not save medication: {}".format(error))
+                continue
 
-    elif med_choice == "2":
-        print("View Medications feature coming soon...")
-    elif med_choice == "3":
-        print("Remove Medication feature coming soon...")
-    else:
-        print("Invalid choice. Returning to main menu.")
+            print("Success! '{}' has been saved to {}.".format(
+                med_name, MEDICATIONS_FILE))
+
+        elif med_choice in ("2", "3"):
+            try:
+                with open(MEDICATIONS_FILE, "r", encoding="utf-8") as file:
+                    medications = [line.rstrip("\n") for line in file if line.strip()]
+            except FileNotFoundError:
+                medications = []
+            except OSError as error:
+                print("Could not read medications: {}".format(error))
+                continue
+
+            if not medications:
+                print("No medications found.")
+                continue
+
+            print("\n--- Medications ---")
+            for number, medication in enumerate(medications, start=1):
+                print("{}. {}".format(number, medication))
+
+            if med_choice == "2":
+                continue
+
+            selection = input("Enter the number to remove (or 0 to cancel): ").strip()
+            if selection == "0":
+                print("Removal cancelled.")
+                continue
+            try:
+                medication_number = int(selection)
+            except ValueError:
+                print("Please enter a valid medication number.")
+                continue
+            if not 1 <= medication_number <= len(medications):
+                print("That medication number is out of range.")
+                continue
+
+            removed = medications.pop(medication_number - 1)
+            try:
+                with open(MEDICATIONS_FILE, "w", encoding="utf-8") as file:
+                    for medication in medications:
+                        file.write(medication + "\n")
+            except OSError as error:
+                print("Could not remove medication: {}".format(error))
+                continue
+
+            print("Removed: {}".format(removed))
+
+        else:
+            print("Invalid choice. Please type a number from 1 to 4.")
 
 def get_recent_readings(metric_key, limit=7):
     """Return the newest readings for one metric as a list of (value, date)."""
