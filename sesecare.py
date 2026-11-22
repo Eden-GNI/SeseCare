@@ -26,17 +26,29 @@ def show_menu():
     print("3. View Summary & Alerts")
     print("4. Exit")
 
+
 def save_reading(metric_key, value, reading_date):
-    """Save one reading into the SQL database. (TEAMMATE: write this function.)
+    """Save one reading into the SQL database."""
+    conn = sqlite3.connect(DB_FILE)
+    try:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS readings ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "metric TEXT NOT NULL, "
+            "value REAL NOT NULL, "
+            "date TEXT NOT NULL)"
+        )
 
-    metric_key   -> text: "water", "exercise" or "sleep"
-    value        -> number (float), already checked by record_reading()
-    reading_date -> text in YYYY-MM-DD format, for example "2026-11-21"
+        conn.execute(
+            "INSERT INTO readings (metric, value, date) "
+            "VALUES (?, ?, ?)",
+            (metric_key, value, reading_date)
+        )
 
-    Nothing needs to be returned.
-    """
-    # TODO: add the SQL code that saves the reading here
-    pass
+        conn.commit()
+    finally:
+        conn.close()
+
 
 
 def record_reading():
