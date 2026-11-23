@@ -2,14 +2,18 @@
 PLP 2 demo of terminal menu app.
 🏥 SeseCare – Personal Health Tracker
 
+PLP 2 Demo Project | Python Terminal Menu Application
+
 Take control of your health, one record at a time!
 
-SeseCare is a simple, menu-driven health tracking application built with Python. It allows users to record daily health activities, manage medications, and monitor their progress through summaries and personalized health alerts.
+SeseCare is a simple, menu-driven personal health tracking application developed using Python as part of the Power Learn Project (PLP) 2.
 
-The application uses SQLite for storing health readings and text-file storage for managing medication information.
+It allows users to record daily health activities, manage medication records, and monitor their progress through health summaries and personalized alerts.
+
+The application uses SQLite to store health readings and text-file storage to manage medication information.
 
 📌 Features
-1. 💧 Record Health Readings
+💧 1. Record Health Readings
 
 Track important daily health activities, including:
 
@@ -17,15 +21,16 @@ Water Intake: Record daily water consumption in liters.
 Exercise Minutes: Track daily physical activity in minutes.
 Sleep Hours: Monitor daily sleeping hours.
 
-The application validates user input to ensure that recorded values fall within acceptable ranges.
+The application validates user input to ensure recorded values fall within acceptable ranges.
 
+Health Tracking Goals
 Health Metric	Recommended Goal	Maximum Allowed
 Water Intake	2 liters	20 liters
 Exercise	30 minutes	1,440 minutes
 Sleep	7 hours	24 hours
-2. 💊 Medication Management
+💊 2. Medication Management
 
-Manage your medication records through an interactive menu.
+Manage medication records through an interactive menu.
 
 Available operations:
 
@@ -38,9 +43,9 @@ Remove medications from the list.
 
 Medication details are stored locally in medications.txt.
 
-3. 📊 Health Summary & Alerts
+📊 3. Health Summary & Alerts
 
-Review your health tracking progress using automatically generated summaries.
+Review your health tracking progress through automatically generated summaries.
 
 For each health metric, SeseCare provides:
 
@@ -62,12 +67,12 @@ text
 SeseCare/
 │
 ├── sesecare.py        # Main application
-├── sesecare.db        # SQLite database (created automatically)
-├── medications.txt    # Medication records (created when needed)
+├── sesecare.db        # SQLite database (auto-generated)
+├── medications.txt    # Medication records (auto-generated)
 └── README.md          # Project documentation
 
 
-Note: The database and medication file are generated automatically when the application needs them.
+Note: The database and medication file are generated automatically when needed.
 
 🚀 Installation and Setup
 
@@ -75,13 +80,13 @@ Follow these steps to run SeseCare on your computer.
 
 Prerequisites
 
-Ensure you have:
+Ensure you have the following installed:
 
-Python 3.x installed.
-Git installed.
-A terminal or command-line interface.
+Python 3.x
+Git
+A terminal or command-line interface
 
-SQLite3 is included in Python's standard library, so no additional package installation is required.
+Note: SQLite3 is included in Python's standard library. No additional package installation is required.
 
 Step 1: Clone the Repository
 bash
@@ -92,21 +97,25 @@ bash
 cd SeseCare
 
 Step 3: Run the Application
+
+Linux / macOS:
+
 bash
 python3 sesecare.py
 
 
-On Windows, you can use:
+Windows:
 
 bash
 python sesecare.py
 
 🖥️ Application Usage
 
-When you launch SeseCare, the following main menu appears:
+After launching the application, the following main menu will appear:
 
 text
 === HEALTH TRACKER ===
+
 1. Record Health Reading
 2. Manage Medications
 3. View Summary & Alerts
@@ -114,72 +123,76 @@ text
 
 Enter your choice (1-4):
 
-Option 1: Record Health Reading
+1. Record Health Reading
 
-Choose option 1 to record a health metric.
+Select option 1 to record a health metric.
 
-You can select:
+Available options:
 
 text
 --- Record Health Reading ---
+
 What would you like to record?
+
 1. Water Intake
 2. Exercise Minutes
 3. Sleep Hours
 4. Back to Main Menu
 
 
-For example, selecting Water Intake allows you to enter your daily water consumption.
+Choose a metric and enter the corresponding measurement.
 
-Option 2: Manage Medications
+2. Manage Medications
 
-Choose option 2 to manage your medication records.
+Select option 2 to manage medication records.
 
-The medication menu provides:
+Available options:
 
 text
 --- Manage Medications ---
+
 1. Add Medication
 2. View Medications
 3. Remove Medication
 4. Back to Main Menu
 
 
-When adding a medication, you provide:
+When adding a medication, you will provide:
 
 Medication name.
 Medication dose.
 Medication time (HH:MM AM/PM).
-Option 3: View Summary & Alerts
+3. View Summary & Alerts
 
-Choose option 3 to review your health statistics.
+Select option 3 to review your health statistics.
 
-You can select Water Intake, Exercise Minutes, or Sleep Hours to view:
+Choose one of the available metrics:
 
-Average values.
-Highest values.
-Lowest values.
-Health alerts and recommendations.
+Water Intake.
+Exercise Minutes.
+Sleep Hours.
 
-The application evaluates your seven most recent records and displays an alert if more than half are below the recommended goal.
+The application displays the average, highest, and lowest recorded values.
 
-Option 4: Exit
+It also evaluates the seven most recent records and generates an alert if more than half fall below the recommended goal.
 
-Choose option 4 to safely exit the application.
+4. Exit
+
+Select option 4 to exit the application safely.
 
 💾 Data Storage
 
-SeseCare uses two local storage mechanisms:
+SeseCare uses two local storage mechanisms.
 
 1. SQLite Database (sesecare.db)
 
-Stores health readings with the following fields:
+Stores health readings using the following fields:
 
-id – Unique reading identifier.
-metric – Type of health metric.
-value – Recorded measurement.
-date – Date of the reading.
-
+Field	Description
+id	Unique reading identifier
+metric	Type of health metric
+value	Recorded measurement
+date	Date of the reading
 2. Text File (medications.txt)
 
 Stores medication information, including:
@@ -188,31 +201,33 @@ Medication name.
 Medication dosage.
 Medication time.
 
-All data is stored locally on the computer.
+All application data is stored locally on the computer.
 
 🔒 Input Validation and Error Handling
 
-SeseCare includes basic validation mechanisms to improve reliability:
+SeseCare includes basic validation and error-handling mechanisms to improve reliability.
 
-Rejects invalid menu selections.
-Prevents non-numeric health readings.
-Checks that health readings fall within acceptable ranges.
-Ensures required medication details are provided.
-Validates medication time formats.
-Handles database and file-related errors.
-Supports graceful application exit using Ctrl+C.
+These include:
+
+Rejecting invalid menu selections.
+Preventing non-numeric health readings.
+Checking that health readings fall within acceptable ranges.
+Ensuring required medication details are provided.
+Validating medication time formats.
+Handling database and file-related errors.
+Supporting graceful application exit using Ctrl + C.
 🔮 Future Improvements
 
 Potential enhancements include:
 
-Adding user registration and authentication.
-Introducing multiple user profiles.
-Implementing medication reminders.
-Adding weekly and monthly health reports.
-Creating graphical health progress charts.
-Introducing automatic backups.
-Developing a graphical user interface.
-Adding customizable health goals.
+User registration and authentication.
+Multiple user profiles.
+Medication reminders.
+Weekly and monthly health reports.
+Graphical health progress charts.
+Automatic data backups.
+Graphical user interface (GUI).
+Customizable health goals.
 🤝 Contributing
 
 Contributions, suggestions, and improvements are welcome!
@@ -236,16 +251,15 @@ git push origin feature/new-feature
 Open a Pull Request.
 📄 License
 
-No license has currently been specified for this repository. Please contact the repository owner for permission before redistributing the project.
+No license has currently been specified for this project.
 
-👨‍💻 Author
+Please contact the repository owner for permission before redistributing the project.
 
-Eden-GNI
 
-GitHub: https://github.com/Eden-GNI
 
-Project: SeseCare – Personal Health Tracker
 
 ⭐ If you find SeseCare useful, consider giving this repository a star!
 
 Built with ❤️ using Python.
+
+Disclaimer: SeseCare is an educational health-tracking application. Its goals and alerts are general tracking guidelines, not medical advice. It records medication information but does not provide automated medication reminders.
